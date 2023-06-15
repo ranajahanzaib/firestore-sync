@@ -2,8 +2,6 @@
 
 Firestore Sync is an open-source project template that provides a Firebase Cloud Function for automatically importing JSON data into Firestore based on Storage events.
 
-Preview: https://www.loom.com/share/d87de9717ada431e805c9b6f5107a32e?sid=edb1fa92-2a98-4897-9f85-8eb22c117548
-
 ## Overview
 
 Firestore Sync allows you to easily set up a Cloud Function that monitors a specified storage bucket and automatically imports JSON files into Firestore as documents. You can define middleware functions to modify the data before uploading it to Firestore, making it flexible to adapt to your specific data structure and requirements.
