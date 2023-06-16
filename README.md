@@ -1,15 +1,15 @@
 # Firestore Sync - Template Repository
 
-Firestore Sync is an open-source project template that provides a Firebase Cloud Function for automatically importing JSON data into Firestore based on Storage events.
+Firestore Sync is an open-source project template that provides a Firebase Cloud Function for automatically importing data into Cloud Firestore based on Storage events.
 
 ## Overview
 
-Firestore Sync allows you to easily set up a Cloud Function that monitors a specified storage bucket and automatically imports JSON files into Firestore as documents. You can define middleware functions to modify the data before uploading it to Firestore, making it flexible to adapt to your specific data structure and requirements.
+Firestore Sync allows you to easily set up a Cloud Function that monitors a specified storage bucket and automatically imports data files into Firestore as documents. You can define middleware functions to modify the data before uploading it to Firestore, making it flexible to adapt to your specific data structure and requirements.
 
 ## Features
 
-- Automatically import JSON data into Firestore based on Storage events.
-- Apply middleware functions to modify the JSON data before uploading to Firestore.
+- Automatically import data into Firestore based on Storage events.
+- Apply middleware functions to modify the data before uploading to Firestore.
 - Folder-based mapping: JSON files in specific folders are uploaded to corresponding collections in Firestore.
 - Customizable document ID generation based on data fields or random IDs.
 - Easy integration with Firebase projects.
