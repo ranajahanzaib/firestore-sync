@@ -9,42 +9,71 @@ const storage = new Storage();
 
 const DEFAULT_COLLECTION_NAME = "unsorted-data";
 
-exports.uploadJSONToFirestore = functions.storage
-  .object()
-  .onFinalize(async (object) => {
+/**
+ * Creates a storage event trigger that executes a callback function only if the uploaded file is in one of the allowed folders.
+ *
+ * @param {string[]} allowedFolders - An array of allowed folder names.
+ * @param {Function} callback - The callback function to be executed when the file meets the condition.
+ * @returns {functions.CloudFunction} - The Cloud Function trigger.
+ */
+function createStorageEvent(allowedFolders, callback) {
+  return functions.storage.object().onFinalize(async (object) => {
     const filePath = object.name;
-    const bucket = storage.bucket(object.bucket);
-    const file = bucket.file(filePath);
+    const parentFolderName = getParentFolderName(filePath);
 
-    try {
-      const [fileContent] = await file.download();
-      const json = JSON.parse(fileContent.toString());
-      const collectionName = getParentFolderName(filePath);
-
-      // Apply your middleware logic to modify the JSON data as needed
-      const modifiedData = applyMiddleware(json, getDocId);
-
-      const firestore = admin.firestore();
-      const collectionRef = firestore.collection(
-        collectionName || DEFAULT_COLLECTION_NAME
-      );
-
-      const documentId = modifiedData.firestoreDocId;
-      delete modifiedData.firestoreDocId;
-
-      await collectionRef.doc(documentId).set(modifiedData);
-
+    if (!allowedFolders.includes(parentFolderName)) {
       console.log(
-        `Uploaded modified JSON data from ${filePath} to Firestore collection "${
-          collectionName || DEFAULT_COLLECTION_NAME
-        }"`
+        `File uploaded to ${parentFolderName} is not allowed. Skipping.`
       );
-    } catch (error) {
-      console.error("Error uploading JSON to Firestore:", error);
+      return;
     }
-  });
 
-// Helper function to extract parent folder name from the file path
+    await callback(filePath, object);
+  });
+}
+
+/**
+ * Cloud Function that processes an uploaded JSON file and uploads it to Firestore.
+ *
+ * @param {string} filePath - The path of the uploaded file.
+ * @param {object} object - The object containing information about the uploaded file.
+ * @returns {Promise<void>}
+ */
+async function processUploadedFile(filePath, object) {
+  const bucket = storage.bucket(object.bucket);
+  const file = bucket.file(filePath);
+
+  try {
+    const [fileContent] = await file.download();
+    const json = JSON.parse(fileContent.toString());
+
+    // Apply your middleware logic to modify the JSON data as needed
+    const modifiedData = applyMiddleware(json, getDocId);
+
+    const firestore = admin.firestore();
+    const collectionName =
+      getParentFolderName(filePath) || DEFAULT_COLLECTION_NAME;
+    const collectionRef = firestore.collection(collectionName);
+
+    const documentId = modifiedData.firestoreDocId;
+    delete modifiedData.firestoreDocId;
+
+    await collectionRef.doc(documentId).set(modifiedData);
+
+    console.log(
+      `Uploaded modified JSON data from ${filePath} to Firestore collection "${collectionName}"`
+    );
+  } catch (error) {
+    console.error("Error uploading JSON to Firestore:", error);
+  }
+}
+
+/**
+ * Helper function to extract the parent folder name from the file path.
+ *
+ * @param {string} filePath - The path of the file.
+ * @returns {string} - The parent folder name.
+ */
 function getParentFolderName(filePath) {
   const parentPath = filePath.substring(0, filePath.lastIndexOf("/"));
   const parentFolderName = parentPath.substring(
@@ -52,3 +81,8 @@ function getParentFolderName(filePath) {
   );
   return parentFolderName;
 }
+
+exports.importJsonToFirestore = createStorageEvent(
+  ["mobiles", "laptops"],
+  processUploadedFile
+);

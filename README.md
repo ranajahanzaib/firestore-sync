@@ -38,6 +38,39 @@ You can test the Firestore Sync function locally using Firebase emulators. Follo
 3. The emulators will start, including the Firestore emulator and the Functions emulator.
 4. Trigger the function locally by uploading a JSON file to your configured storage bucket.
 
+### Adding More Functions
+
+The `createStorageEvent` function allows you to create custom events for specific folders and define a callback function to process files after they are uploaded. You can use this function to create multiple events for different folders and process the files in different ways.
+
+**Function:** `createStorageEvent(allowedFolders, callback)`
+The `createStorageEvent` function creates a Cloud Function trigger that executes a callback function only if the uploaded file is in one of the allowed folders.
+
+#### Parameters
+
+- `allowedFolders` (array): An array of allowed folder names. The function will trigger the callback only if the uploaded file is in one of these folders.
+
+- `callback` (function): The callback function to be executed when the file meets the condition. This function will receive the file's path as a parameter.
+
+```js
+// Import the required dependencies
+const functions = require("firebase-functions");
+
+// Define the callback function to process the uploaded file
+function processUploadedFile(filePath) {
+  // Your custom logic to process the file
+  console.log(`Processing file: ${filePath}`);
+}
+
+// Create a trigger for the "mobiles" and "laptops" folders
+const storageEventTrigger = createStorageEvent(
+  ["mobiles", "laptops"],
+  processUploadedFile
+);
+
+// Export the trigger
+exports.uploadEvent = storageEventTrigger;
+```
+
 ### Deployment
 
 Deploy the Cloud Function to your Firebase project by running `firebase deploy --only functions`.
