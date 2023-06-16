@@ -39,7 +39,7 @@ function createStorageEvent(allowedFolders, callback) {
  * @param {object} object - The object containing information about the uploaded file.
  * @returns {Promise<void>}
  */
-async function processUploadedFile(filePath, object) {
+async function handleUploadedFile(filePath, object) {
   const bucket = storage.bucket(object.bucket);
   const file = bucket.file(filePath);
 
@@ -82,7 +82,7 @@ function getParentFolderName(filePath) {
   return parentFolderName;
 }
 
-exports.importJsonToFirestore = createStorageEvent(
+exports.handleStorageEvent = createStorageEvent(
   ["mobiles", "laptops"],
-  processUploadedFile
+  handleUploadedFile
 );

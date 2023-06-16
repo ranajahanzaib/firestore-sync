@@ -56,7 +56,7 @@ The `createStorageEvent` function creates a Cloud Function trigger that executes
 const functions = require("firebase-functions");
 
 // Define the callback function to process the uploaded file
-function processUploadedFile(filePath) {
+function handleUploadedFile(filePath) {
   // Your custom logic to process the file
   console.log(`Processing file: ${filePath}`);
 }
@@ -64,7 +64,7 @@ function processUploadedFile(filePath) {
 // Create a trigger for the "mobiles" and "laptops" folders
 const storageEventTrigger = createStorageEvent(
   ["mobiles", "laptops"],
-  processUploadedFile
+  handleUploadedFile
 );
 
 // Export the trigger
