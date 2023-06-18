@@ -19,6 +19,13 @@ const DEFAULT_COLLECTION_NAME = "unsorted-data";
 function createStorageEvent(allowedFolders, callback) {
   return functions.storage.object().onFinalize(async (object) => {
     const filePath = object.name;
+
+    // Check if the filePath refers to a file or a folder
+    if (filePath.endsWith("/")) {
+      console.log(`Skipping folder creation: ${filePath}`);
+      return;
+    }
+
     const parentFolderName = getParentFolderName(filePath);
 
     if (!allowedFolders.includes(parentFolderName)) {
